@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import PG from "../models/PG.js";
+import PG from "../models/pg.js";
 import path from "path";
 
 const router = express.Router();

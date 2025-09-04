@@ -8,6 +8,9 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -16,7 +19,7 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/admin/login", {
+      const res = await axios.post(`${BASE_URL}/admin/login`, {
         email,
         password,
       });

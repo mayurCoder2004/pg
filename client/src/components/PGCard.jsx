@@ -6,7 +6,18 @@ import "yet-another-react-lightbox/styles.css";
 import Lightbox from "yet-another-react-lightbox";
 import Video from "yet-another-react-lightbox/plugins/video";
 import ReactPlayer from "react-player";
-import { ChevronLeft, ChevronRight, Maximize2, MapPin, Users, Utensils, Star, Wifi } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  MapPin,
+  Users,
+  Utensils,
+  Star,
+  Wifi,
+} from "lucide-react";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // Custom arrow components
 const NextArrow = ({ onClick }) => (
@@ -34,8 +45,10 @@ const PGCard = ({ pg }) => {
 
   // Prepare media items for the lightbox
   const mediaItems = [
-    ...(pg.photos?.map((p) => ({ type: "image", src: `http://localhost:5000${p}` })) || []),
-    ...(pg.videos?.map((v) => ({ type: "video", src: `http://localhost:5000${v}` })) || []),
+    ...(pg.photos?.map((p) => ({ type: "image", src: `${BASE_URL}${p}` })) ||
+      []),
+    ...(pg.videos?.map((v) => ({ type: "video", src: `${BASE_URL}${v}` })) ||
+      []),
   ];
 
   // react-slick settings
@@ -52,26 +65,30 @@ const PGCard = ({ pg }) => {
   };
 
   // Parse amenities if it's a string
-  const amenitiesList = typeof pg.amenities === 'string' 
-    ? pg.amenities.split(',').map(a => a.trim()).filter(a => a) 
-    : pg.amenities || [];
+  const amenitiesList =
+    typeof pg.amenities === "string"
+      ? pg.amenities
+          .split(",")
+          .map((a) => a.trim())
+          .filter((a) => a)
+      : pg.amenities || [];
 
   // Food type styling
   const getFoodTypeStyle = (foodType) => {
     switch (foodType) {
-      case 'Veg':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'Non-Veg':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'Veg/Non Veg':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case "Veg":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Non-Veg":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "Veg/Non Veg":
+        return "bg-orange-100 text-orange-800 border-orange-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   return (
-    <div 
+    <div
       className="group bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -93,17 +110,25 @@ const PGCard = ({ pg }) => {
                   </div>
                 ) : (
                   <div className="relative">
-                    <video 
-                      src={item.src} 
-                      className="w-full h-56 object-cover" 
-                      muted 
+                    <video
+                      src={item.src}
+                      className="w-full h-56 object-cover"
+                      muted
                       poster={item.src}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-black/50 rounded-full p-3 backdrop-blur-sm">
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        <svg
+                          className="w-8 h-8 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                     </div>
@@ -132,8 +157,18 @@ const PGCard = ({ pg }) => {
       ) : (
         <div className="h-56 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-2xl flex items-center justify-center">
           <div className="text-center">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-16 h-16 text-gray-400 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             <p className="text-gray-500 text-sm">No photos available</p>
           </div>
@@ -185,9 +220,17 @@ const PGCard = ({ pg }) => {
               <p className="text-gray-600 text-sm">per month</p>
             </div>
             <div className="bg-green-500 p-2 rounded-lg">
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-5 h-5 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
           </div>
@@ -200,8 +243,12 @@ const PGCard = ({ pg }) => {
             <p className="text-xs text-gray-600 mb-1">Sharing</p>
             <p className="font-semibold text-blue-700">{pg.sharing}</p>
           </div>
-          
-          <div className={`border rounded-lg p-3 text-center ${getFoodTypeStyle(pg.foodType)}`}>
+
+          <div
+            className={`border rounded-lg p-3 text-center ${getFoodTypeStyle(
+              pg.foodType
+            )}`}
+          >
             <Utensils className="w-5 h-5 mx-auto mb-1" />
             <p className="text-xs mb-1">Food Type</p>
             <p className="font-semibold text-xs">{pg.foodType}</p>
@@ -236,8 +283,13 @@ const PGCard = ({ pg }) => {
 
       {/* Hover Overlay for Media Count */}
       {mediaItems.length > 1 && (
-        <div className={`absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          {mediaItems.length} {mediaItems.length === 1 ? 'photo' : 'photos/videos'}
+        <div
+          className={`absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-opacity duration-200 ${
+            isHovered ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {mediaItems.length}{" "}
+          {mediaItems.length === 1 ? "photo" : "photos/videos"}
         </div>
       )}
 
@@ -246,18 +298,18 @@ const PGCard = ({ pg }) => {
         .pg-slider .slick-dots {
           bottom: 10px;
         }
-        
+
         .pg-slider .slick-dots li button:before {
           color: white;
           opacity: 0.5;
           font-size: 8px;
         }
-        
+
         .pg-slider .slick-dots li.slick-active button:before {
           opacity: 1;
           color: white;
         }
-        
+
         .pg-slider .slick-dots li {
           margin: 0 2px;
         }

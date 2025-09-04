@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 const Admin = () => {
   const [pg, setPg] = useState({
     pgName: "",
@@ -29,7 +31,7 @@ const Admin = () => {
 
     const fetchPGs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/pgs", {
+        const res = await axios.get(`${BASE_URL}/pgs`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPgs(res.data);
@@ -51,7 +53,7 @@ const Admin = () => {
     videos.forEach((file) => formData.append("videos", file));
 
     try {
-      const res = await axios.post("http://localhost:5000/pgs", formData, {
+      const res = await axios.post(`${BASE_URL}/pgs`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -85,7 +87,7 @@ const Admin = () => {
 
     setIsDeleting(id);
     try {
-      await axios.delete(`http://localhost:5000/pgs/${id}`, {
+      await axios.delete(`${BASE_URL}/pgs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

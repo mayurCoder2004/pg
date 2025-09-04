@@ -9,10 +9,12 @@ const Home = () => {
   const [search, setSearch] = useState("");
   const [filterFood, setFilterFood] = useState("All");
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
   useEffect(() => {
     const fetchPGs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/pgs");
+        const res = await axios.get(`${BASE_URL}/pgs`);
         setPgs(res.data);
       } catch (err) {
         setError("Failed to load PGs. Please try again later.");

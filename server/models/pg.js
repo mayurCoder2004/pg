@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+const mediaSchema = new mongoose.Schema({
+  url: { type: String, required: true },        // Cloudinary secure URL
+  public_id: { type: String, required: true },  // Cloudinary ID (for deletion)
+});
+
 const pgSchema = new mongoose.Schema({
   pgName: { type: String, required: true },
   location: { type: String, required: true },
@@ -11,8 +16,8 @@ const pgSchema = new mongoose.Schema({
     required: true,
   },
   amenities: [String],
-  photos: [String],
-  videos: [String],
+  photos: [mediaSchema], // ✅ array of objects
+  videos: [mediaSchema], // ✅ array of objects
   reviews: [
     {
       student: String,
@@ -20,7 +25,7 @@ const pgSchema = new mongoose.Schema({
       rating: Number,
     },
   ],
-});
+}, { timestamps: true }); // optional but useful
 
 const PG = mongoose.model("PG", pgSchema);
 export default PG;

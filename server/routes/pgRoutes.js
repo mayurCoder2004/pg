@@ -1,38 +1,26 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
-import multer from "multer";
 import PG from "../models/pg.js";
-import path from "path";
+import multer from "multer";
+import { storage, cloudinary } from "../config/cloudinaryConfig.js";
 
 const router = express.Router();
-
-// Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.mimetype.startsWith("video")) {
-      cb(null, "uploads/videos/");
-    } else {
-      cb(null, "uploads/photos/");
-    }
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
 const upload = multer({ storage });
 
-// Get all PGs
+// GET all PGs
 router.get("/", async (req, res) => {
   try {
     const pgs = await PG.find();
     res.json(pgs);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch PGs" });
+    console.error("Error fetching PGs:", err.stack || err);
+    res.status(500).json({ error: "Failed to fetch PGs", details: err.message });
   }
 });
 
-// Add new PG
+// POST new PG
 router.post(
   "/",
   upload.fields([{ name: "photos" }, { name: "videos" }]),
@@ -40,38 +28,58 @@ router.post(
     try {
       const { pgName, location, price, sharing, foodType, amenities } = req.body;
 
+      // Map photos and videos from multer-storage-cloudinary
+      const photos = req.files["photos"]?.map(file => ({
+        url: file.path,       // Cloudinary URL
+        public_id: file.filename // Cloudinary public_id
+      })) || [];
+
+      const videos = req.files["videos"]?.map(file => ({
+        url: file.path,
+        public_id: file.filename
+      })) || [];
+
       const newPG = new PG({
         pgName,
         location,
         price: Number(price),
         sharing,
         foodType,
-        amenities: amenities ? amenities.split(",").map((a) => a.trim()) : [],
-        photos: req.files["photos"]
-          ? req.files["photos"].map((f) => `/uploads/photos/${f.filename}`)
-          : [],
-        videos: req.files["videos"]
-          ? req.files["videos"].map((f) => `/uploads/videos/${f.filename}`)
-          : [],
+        amenities: amenities ? amenities.split(",").map(a => a.trim()) : [],
+        photos,
+        videos
       });
 
       await newPG.save();
       res.json({ message: "PG Added ✅", pg: newPG });
     } catch (err) {
-      console.error("Error saving PG:", err);
-      res.status(500).json({ error: "Failed to save PG" });
+      console.error("Error saving PG:", err.stack || err);
+      res.status(500).json({ error: "Failed to save PG", details: err.message });
     }
   }
 );
 
-// Delete PG
+// DELETE PG and its media from Cloudinary
 router.delete("/:id", async (req, res) => {
   try {
+    const pg = await PG.findById(req.params.id);
+    if (!pg) return res.status(404).json({ error: "PG not found" });
+
+    // Delete photos
+    for (const photo of pg.photos) {
+      await cloudinary.uploader.destroy(photo.public_id, { resource_type: "image" });
+    }
+
+    // Delete videos
+    for (const video of pg.videos) {
+      await cloudinary.uploader.destroy(video.public_id, { resource_type: "video" });
+    }
+
     await PG.findByIdAndDelete(req.params.id);
     res.json({ message: "PG Deleted ❌" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to delete PG" });
+    console.error("Error deleting PG:", err.stack || err);
+    res.status(500).json({ error: "Failed to delete PG", details: err.message });
   }
 });
 

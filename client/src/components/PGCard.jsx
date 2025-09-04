@@ -45,10 +45,8 @@ const PGCard = ({ pg }) => {
 
   // Prepare media items for the lightbox
   const mediaItems = [
-    ...(pg.photos?.map((p) => ({ type: "image", src: `${BASE_URL}${p}` })) ||
-      []),
-    ...(pg.videos?.map((v) => ({ type: "video", src: `${BASE_URL}${v}` })) ||
-      []),
+    ...(pg.photos?.map((p) => ({ type: "image", src: p.url })) || []),
+    ...(pg.videos?.map((v) => ({ type: "video", src: v.url })) || []),
   ];
 
   // react-slick settings

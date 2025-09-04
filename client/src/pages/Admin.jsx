@@ -1,8 +1,73 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+// Custom Confirmation Modal Component
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, pgName, isDeleting }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-100 animate-modal-slide-in">
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="bg-red-100 p-3 rounded-full">
+              <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Delete Confirmation</h3>
+              <p className="text-gray-500 text-sm">This action cannot be undone</p>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="mb-6">
+            <p className="text-gray-700 leading-relaxed">
+              Are you sure you want to delete <span className="font-semibold text-red-600">"{pgName}"</span>? 
+              This will permanently remove the PG listing and all associated data.
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              disabled={isDeleting}
+              className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete PG
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Admin = () => {
   const [pg, setPg] = useState({
@@ -17,7 +82,15 @@ const Admin = () => {
   const [videos, setVideos] = useState([]);
   const [pgs, setPgs] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Modal state
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    pgId: null,
+    pgName: ""
+  });
+  
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -37,6 +110,10 @@ const Admin = () => {
         setPgs(res.data);
       } catch (err) {
         console.error("Error fetching PGs:", err);
+        toast.error("Failed to fetch PGs", {
+          duration: 3000,
+          position: 'top-center',
+        });
       }
     };
 
@@ -60,7 +137,22 @@ const Admin = () => {
         },
       });
 
-      alert("PG Added ✅");
+      toast.success("PG Added Successfully! 🎉", {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#10B981',
+          color: '#fff',
+          fontSize: '16px',
+          fontWeight: '600',
+          padding: '16px 24px',
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#10B981',
+        },
+      });
+      
       setPg({
         pgName: "",
         location: "",
@@ -76,38 +168,145 @@ const Admin = () => {
       setPgs([...pgs, res.data.pg]);
     } catch (err) {
       console.error("Error adding PG:", err);
-      alert("❌ Failed to add PG");
+      toast.error("Failed to add PG. Please try again.", {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+          fontSize: '16px',
+          fontWeight: '600',
+          padding: '16px 24px',
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#EF4444',
+        },
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this PG?")) return;
+  // Open delete confirmation modal
+  const openDeleteModal = (id, pgName) => {
+    setDeleteModal({
+      isOpen: true,
+      pgId: id,
+      pgName: pgName
+    });
+  };
 
-    setIsDeleting(id);
+  // Close delete confirmation modal
+  const closeDeleteModal = () => {
+    if (!isDeleting) {
+      setDeleteModal({
+        isOpen: false,
+        pgId: null,
+        pgName: ""
+      });
+    }
+  };
+
+  // Confirm delete action
+  const confirmDelete = async () => {
+    if (!deleteModal.pgId) return;
+    
+    setIsDeleting(true);
+
     try {
-      await axios.delete(`${BASE_URL}/pgs/${id}`, {
+      await axios.delete(`${BASE_URL}/pgs/${deleteModal.pgId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setPgs(pgs.filter((pg) => pg._id !== id));
-      alert("PG Deleted ✅");
+      setPgs(pgs.filter((pg) => pg._id !== deleteModal.pgId));
+      
+      toast.success("PG Deleted Successfully! 🗑️", {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#10B981',
+          color: '#fff',
+          fontSize: '16px',
+          fontWeight: '600',
+          padding: '16px 24px',
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#10B981',
+        },
+      });
+      
+      // Close modal after successful deletion
+      setDeleteModal({
+        isOpen: false,
+        pgId: null,
+        pgName: ""
+      });
     } catch (err) {
       console.error("Error deleting PG:", err);
-      alert("❌ Failed to delete PG");
+      toast.error("Failed to delete PG. Please try again.", {
+        duration: 4000,
+        position: 'top-center',
+        style: {
+          background: '#EF4444',
+          color: '#fff',
+          fontSize: '16px',
+          fontWeight: '600',
+          padding: '16px 24px',
+        },
+        iconTheme: {
+          primary: '#fff',
+          secondary: '#EF4444',
+        },
+      });
     } finally {
-      setIsDeleting(null);
+      setIsDeleting(false);
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    toast.success("Logged out successfully! 👋", {
+      duration: 2000,
+      position: 'top-center',
+      style: {
+        background: '#3B82F6',
+        color: '#fff',
+        fontSize: '16px',
+        fontWeight: '600',
+        padding: '16px 24px',
+      },
+      iconTheme: {
+        primary: '#fff',
+        secondary: '#3B82F6',
+      },
+    });
     navigate("/admin-login");
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Toast Container */}
+      <Toaster
+        toastOptions={{
+          duration: 4000,
+          style: {
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          },
+        }}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        pgName={deleteModal.pgName}
+        isDeleting={isDeleting}
+      />
+
       {/* Header */}
       <div className="bg-white shadow-lg border-b border-gray-200">
         <div className="container mx-auto px-6 py-4">
@@ -397,23 +596,13 @@ const Admin = () => {
                     </div>
 
                     <button
-                      onClick={() => handleDelete(pgItem._id)}
-                      disabled={isDeleting === pgItem._id}
-                      className="flex items-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium group-hover:shadow-md disabled:cursor-not-allowed"
+                      onClick={() => openDeleteModal(pgItem._id, pgItem.pgName)}
+                      className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium group-hover:shadow-md hover:scale-105"
                     >
-                      {isDeleting === pgItem._id ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Delete
-                        </>
-                      )}
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -436,9 +625,24 @@ const Admin = () => {
           }
         }
         
+        @keyframes modal-slide-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        
         .grid > div {
           animation: slideInUp 0.6s ease-out forwards;
           opacity: 0;
+        }
+
+        .animate-modal-slide-in {
+          animation: modal-slide-in 0.3s ease-out forwards;
         }
       `}</style>
     </div>

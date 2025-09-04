@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import { Toaster } from "react-hot-toast";
 
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -14,6 +15,7 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<Home />} />
       <Route
@@ -26,6 +28,8 @@ function App() {
       />
       <Route path="/admin-login" element={<AdminLogin />} />
     </Routes>
+    <Toaster position="top-right" reverseOrder={false} />
+    </>
   );
 }
 

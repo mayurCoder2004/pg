@@ -41,17 +41,32 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header Section */}
+        {/* Header Section */}
         <div
-  className="text-center mb-8"
-  style={{ fontFamily: "'Bangers', cursive", fontWeight: 1200}}
->
-  <h1 className="text-6xl text-gray-800 mb-2">Sheltr</h1>
-  <p className="text-gray-800 text-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-pulse">
-    Seniors ne banaya, Freshers ke kaam aaya.
-  </p>
-</div>
+          className="flex items-center justify-center gap-4 mb-8"
+          style={{ fontFamily: "'Bangers', cursive", fontWeight: 1200 }}
+        >
+          {/* ✅ DSCE Logo */}
+          <img
+            src="/dsce_logo_main.png"
+            alt="DSCE Logo"
+            className="h-20 w-20 object-contain"
+          />
 
+          <div className="text-center">
+            <h1 className="text-6xl text-gray-800 mb-2">Sheltr</h1>
+            <p className="text-gray-800 text-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent animate-pulse">
+              Seniors ne banaya, Freshers ke kaam aaya.
+            </p>
+          </div>
 
+          {/* ✅ DSCE Logo */}
+          <img
+            src="/dsce_logo_main.png"
+            alt="DSCE Logo"
+            className="h-20 w-20 object-contain"
+          />
+        </div>
 
         {/* Important Notice Card */}
         <div className="bg-amber-50 border-l-4 border-amber-400 rounded-xl p-6 mb-8 shadow-md">

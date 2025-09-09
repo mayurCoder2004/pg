@@ -202,12 +202,14 @@ const PGCard = ({ pg }) => {
               <span className="text-sm">{pg.location}</span>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full">
-            <div className="flex items-center gap-1">
-              <Star className="w-3 h-3 fill-current" />
-              <span className="text-xs font-semibold">NEW</span>
+          {pg.pgName.toLowerCase().includes("madilu") && (
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full">
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 fill-current" />
+                <span className="text-xs font-semibold">Recommended</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Price */}
@@ -261,7 +263,7 @@ const PGCard = ({ pg }) => {
               <p className="text-sm font-semibold text-gray-700">Amenities</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {amenitiesList.slice(0, 4).map((amenity, i) => (
+              {amenitiesList.map((amenity, i) => (
                 <span
                   key={i}
                   className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium border border-gray-200 hover:bg-gray-200 transition-colors duration-200"
@@ -269,11 +271,6 @@ const PGCard = ({ pg }) => {
                   {amenity}
                 </span>
               ))}
-              {amenitiesList.length > 4 && (
-                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium border border-blue-200">
-                  +{amenitiesList.length - 4} more
-                </span>
-              )}
             </div>
           </div>
         )}

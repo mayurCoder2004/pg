@@ -25,13 +25,21 @@ const Home = () => {
     fetchPGs();
   }, []);
 
-  const filteredPGs = pgs.filter((pg) => {
-    const matchesSearch = pg.pgName
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesFood = filterFood === "All" || pg.foodType === filterFood;
-    return matchesSearch && matchesFood;
-  });
+    const filteredPGs = pgs
+    .filter((pg) => {
+      const matchesSearch = pg.pgName
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesFood = filterFood === "All" || pg.foodType === filterFood;
+      return matchesSearch && matchesFood;
+    })
+    .sort((a, b) => {
+      const aIsMadilu = a.pgName.toLowerCase().includes("madilu");
+      const bIsMadilu = b.pgName.toLowerCase().includes("madilu");
+      if (aIsMadilu && !bIsMadilu) return -1; // a comes first
+      if (!aIsMadilu && bIsMadilu) return 1;  // b comes first
+      return 0; // keep original order otherwise
+    });
 
   const handleWhatsAppContact = () => {
     window.open("https://chat.whatsapp.com/HuFjutDXnBOKumF1oZFIZB", "_blank");
